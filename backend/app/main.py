@@ -1,12 +1,8 @@
 from fastapi import FastAPI
-app = FastAPI()
-@app.get("/")
-def home():
-    return {"message": "Welcome to PlanWise!"}
-@app.get("/about")
-def about():
-    return{
-        "project": "PlanWise",
-        "version": "0.1.0",
-        "status": "Development"
-    }
+from app.routers.home import router as home_router
+app = FastAPI(
+    title="PlanWise API",
+    description="Backend API for the PlanWise AI Study Planner",
+    version="0.1.0",
+)
+app.include_router(home_router)
