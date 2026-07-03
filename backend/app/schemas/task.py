@@ -27,7 +27,7 @@ class TaskCreate(BaseModel):
         description="Task priority"
     )
 
-    estimated_hours: int | None = Field(
+    estimated_hours: float | None = Field(
         default=None,
         ge=1,
         le=100,
@@ -42,5 +42,5 @@ class TaskResponse(BaseModel):
     subject: str
     description: str | None
     priority: Priority
-    estimated_hours: int | None
+    estimated_hours: float | None
     completed: bool
