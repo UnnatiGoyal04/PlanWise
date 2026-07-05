@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.task import Task
 from app.schemas.task import TaskCreate, TaskUpdate
+from app.enums.priority import Priority
 
 async def create_task(
     task: TaskCreate,
@@ -21,9 +22,17 @@ async def create_task(
     await db.refresh(db_task)
     return db_task
 async def get_tasks(
+    priority: Priority | None,
+    completed: bool | None,
     db: AsyncSession
 ):
     query = select(Task)
+
+    if priority is not None:
+        query = query.where(Task.priority == priority)
+    if completed is not None:
+        query = query.where(Task.completed == completed)
+
     result = await db.execute(query)
     tasks = result.scalars().all()
     return tasks

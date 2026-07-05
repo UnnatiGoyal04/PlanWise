@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.database import get_db
 from app.schemas.task import TaskCreate, TaskResponse, TaskUpdate
 from app.services import task_service
+from app.enums.priority import Priority
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
@@ -23,9 +24,15 @@ async def create_task(
     response_model=list[TaskResponse]
 )
 async def get_tasks(
+    priority: Priority | None = None,
+    completed: bool | None = None,
     db: AsyncSession = Depends(get_db)
 ):
-    tasks = await task_service.get_tasks(db)
+    tasks = await task_service.get_tasks(
+        priority=priority,
+        completed=completed,
+        db=db
+    )    
     return tasks
 @router.get(
     "/{id}",
