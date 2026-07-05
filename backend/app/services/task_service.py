@@ -54,3 +54,15 @@ async def update_task(
     await db.commit()
     await db.refresh(task)
     return task
+async def delete_task(
+    id: int,
+    db: AsyncSession
+):
+    query = select(Task).where(Task.id == id)
+    result = await db.execute(query)
+    task = result.scalar_one_or_none()
+    if task is None:
+        return None
+    await db.delete(task)
+    await db.commit()
+    return True
