@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.database import get_db
@@ -30,6 +30,8 @@ async def get_tasks(
     completed: bool | None = None,
     sort: SortField | None = None,
     order: SortOrder = SortOrder.ASC,
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db)
 ):
     tasks = await task_service.get_tasks(
@@ -37,6 +39,8 @@ async def get_tasks(
         completed=completed,
         sort=sort,
         order=order,
+        page=page,
+        limit=limit,
         db=db
     )    
     return tasks

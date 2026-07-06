@@ -28,6 +28,8 @@ async def get_tasks(
     completed: bool | None,
     sort: SortField | None,
     order: SortOrder,
+    page: int,
+    limit: int,
     db: AsyncSession
 ):
     query = select(Task)
@@ -50,6 +52,9 @@ async def get_tasks(
         else:
             query = query.order_by(desc(sort_column))
 
+    offset = (page - 1) * limit
+    query = query.offset(offset)
+    query = query.limit(limit)
     result = await db.execute(query)
     tasks = result.scalars().all()
     return tasks
