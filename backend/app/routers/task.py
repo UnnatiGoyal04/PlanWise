@@ -5,6 +5,8 @@ from app.database.database import get_db
 from app.schemas.task import TaskCreate, TaskResponse, TaskUpdate
 from app.services import task_service
 from app.enums.priority import Priority
+from app.enums.sort_field import SortField
+from app.enums.sort_order import SortOrder
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
@@ -26,11 +28,15 @@ async def create_task(
 async def get_tasks(
     priority: Priority | None = None,
     completed: bool | None = None,
+    sort: SortField | None = None,
+    order: SortOrder = SortOrder.ASC,
     db: AsyncSession = Depends(get_db)
 ):
     tasks = await task_service.get_tasks(
         priority=priority,
         completed=completed,
+        sort=sort,
+        order=order,
         db=db
     )    
     return tasks

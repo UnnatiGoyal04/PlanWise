@@ -1,9 +1,11 @@
-from sqlalchemy import select
+from sqlalchemy import select, asc, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.task import Task
 from app.schemas.task import TaskCreate, TaskUpdate
 from app.enums.priority import Priority
+from app.enums.sort_field import SortField
+from app.enums.sort_order import SortOrder
 
 async def create_task(
     task: TaskCreate,
@@ -24,6 +26,8 @@ async def create_task(
 async def get_tasks(
     priority: Priority | None,
     completed: bool | None,
+    sort: SortField | None,
+    order: SortOrder,
     db: AsyncSession
 ):
     query = select(Task)
@@ -32,6 +36,19 @@ async def get_tasks(
         query = query.where(Task.priority == priority)
     if completed is not None:
         query = query.where(Task.completed == completed)
+
+    sort_column = None
+    if sort == SortField.TITLE:
+        sort_column = Task.title
+    if sort == SortField.PRIORITY:
+        sort_column = Task.priority
+    if sort == SortField.ESTIMATED_HOURS:
+        sort_column = Task.estimated_hours
+    if sort_column is not None:
+        if order == SortOrder.ASC:
+            query = query.order_by(asc(sort_column))
+        else:
+            query = query.order_by(desc(sort_column))
 
     result = await db.execute(query)
     tasks = result.scalars().all()
