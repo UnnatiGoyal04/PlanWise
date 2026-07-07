@@ -7,12 +7,11 @@ from app.exception_handlers.handlers import register_exception_handlers
 from app.middleware.logging_middleware import register_logging_middleware
 
 from contextlib import asynccontextmanager
-from app.database.database import create_tables, engine
+from app.database.database import engine
 import app.models.task
 
 @asynccontextmanager
 async def lifespan(app):
-    await create_tables(engine)
     yield
 
 

@@ -7,5 +7,6 @@ class Settings:
     APP_VERSION=os.getenv("APP_VERSION")
     APP_DESCRIPTION=os.getenv("APP_DESCRIPTION")
     DEBUG=os.getenv("DEBUG")
+    DATABASE_URL = os.getenv("DATABASE_URL")
 
 settings=Settings()

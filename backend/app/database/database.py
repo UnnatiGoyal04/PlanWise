@@ -6,8 +6,9 @@ from sqlalchemy.ext.asyncio import (
 )
 from typing import AsyncGenerator
 from sqlalchemy.orm import DeclarativeBase
+from app.core.settings import settings
 
-DATABASE_URL = "sqlite+aiosqlite:///./planwise.db"
+DATABASE_URL = settings.DATABASE_URL
 
 engine = create_async_engine(
     DATABASE_URL,
