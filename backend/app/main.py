@@ -4,6 +4,7 @@ from app.core.settings import settings
 from app.routers.home import router as home_router
 from app.routers.task import router as task_router
 from app.exception_handlers.handlers import register_exception_handlers
+from app.middleware.logging_middleware import register_logging_middleware
 
 from contextlib import asynccontextmanager
 from app.database.database import create_tables, engine
@@ -23,5 +24,7 @@ app = FastAPI(
 
 )
 register_exception_handlers(app)
+register_logging_middleware(app)
+
 app.include_router(home_router)
 app.include_router(task_router)
