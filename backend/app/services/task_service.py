@@ -7,6 +7,7 @@ from app.enums.priority import Priority
 from app.enums.sort_field import SortField
 from app.enums.sort_order import SortOrder
 from app.exceptions.task_exceptions import TaskNotFoundException
+from app.logging.logger import logger
 
 async def create_task(
     task: TaskCreate,
@@ -23,6 +24,7 @@ async def create_task(
     db.add(db_task)
     await db.commit()
     await db.refresh(db_task)
+    logger.info(f"Task created successfully (id={db_task.id})")
     return db_task
 async def get_tasks(
     priority: Priority | None,
@@ -76,6 +78,7 @@ async def get_task(
     result = await db.execute(query)
     task = result.scalar_one_or_none()
     if task is None:
+        logger.warning(f"Task not found (id={id})")
         raise TaskNotFoundException()
     return task
 async def update_task(
@@ -96,6 +99,7 @@ async def update_task(
     task.completed = task_data.completed    
     await db.commit()
     await db.refresh(task)
+    logger.info(f"Task updated successfully (id={id})")
     return task
 async def delete_task(
     id: int,
@@ -108,4 +112,5 @@ async def delete_task(
         raise TaskNotFoundException()
     await db.delete(task)
     await db.commit()
+    logger.warning(f"Task not found for deletion (id={id})")
     return True
