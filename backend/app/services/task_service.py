@@ -1,4 +1,4 @@
-from sqlalchemy import select, asc, desc
+from sqlalchemy import select, asc, desc, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.task import Task
@@ -26,6 +26,7 @@ async def create_task(
 async def get_tasks(
     priority: Priority | None,
     completed: bool | None,
+    search: str | None,
     sort: SortField | None,
     order: SortOrder,
     page: int,
@@ -38,6 +39,14 @@ async def get_tasks(
         query = query.where(Task.priority == priority)
     if completed is not None:
         query = query.where(Task.completed == completed)
+    if search is not None:
+        query = query.where(
+            or_(
+                Task.title.ilike(f"%{search}%"),
+                Task.subject.ilike(f"%{search}%"),
+                Task.description.ilike(f"%{search}%")
+            )
+        )
 
     sort_column = None
     if sort == SortField.TITLE:

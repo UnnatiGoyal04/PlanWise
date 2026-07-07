@@ -28,6 +28,7 @@ async def create_task(
 async def get_tasks(
     priority: Priority | None = None,
     completed: bool | None = None,
+    search: str | None = None,
     sort: SortField | None = None,
     order: SortOrder = SortOrder.ASC,
     page: int = Query(default=1, ge=1),
@@ -37,6 +38,7 @@ async def get_tasks(
     tasks = await task_service.get_tasks(
         priority=priority,
         completed=completed,
+        search=search,
         sort=sort,
         order=order,
         page=page,
