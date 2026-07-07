@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from app.core.settings import settings
 from app.routers.home import router as home_router
 from app.routers.task import router as task_router
+from app.exception_handlers.handlers import register_exception_handlers
 
 from contextlib import asynccontextmanager
 from app.database.database import create_tables, engine
@@ -21,5 +22,6 @@ app = FastAPI(
     lifespan=lifespan,
 
 )
+register_exception_handlers(app)
 app.include_router(home_router)
 app.include_router(task_router)

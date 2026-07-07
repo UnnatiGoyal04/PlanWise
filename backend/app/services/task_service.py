@@ -6,6 +6,7 @@ from app.schemas.task import TaskCreate, TaskUpdate
 from app.enums.priority import Priority
 from app.enums.sort_field import SortField
 from app.enums.sort_order import SortOrder
+from app.exceptions.task_exceptions import TaskNotFoundException
 
 async def create_task(
     task: TaskCreate,
@@ -74,6 +75,8 @@ async def get_task(
     query = select(Task).where(Task.id == id)
     result = await db.execute(query)
     task = result.scalar_one_or_none()
+    if task is None:
+        raise TaskNotFoundException()
     return task
 async def update_task(
     id: int,
@@ -84,7 +87,7 @@ async def update_task(
     result = await db.execute(query)
     task = result.scalar_one_or_none()
     if task is None:
-        return None
+        raise TaskNotFoundException()
     task.title = task_data.title
     task.subject = task_data.subject
     task.description = task_data.description
@@ -102,7 +105,7 @@ async def delete_task(
     result = await db.execute(query)
     task = result.scalar_one_or_none()
     if task is None:
-        return None
+        raise TaskNotFoundException()
     await db.delete(task)
     await db.commit()
     return True

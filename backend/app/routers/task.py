@@ -54,14 +54,7 @@ async def get_task(
     id:int,
     db:AsyncSession=Depends(get_db)
 ):
-    task = await task_service.get_task(id, db)
-
-    if task is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Task not found"
-        )
-    return task
+    return await task_service.get_task(id, db)
 @router.put(
     "/{id}",
     response_model=TaskResponse
@@ -71,17 +64,11 @@ async def update_task(
     task: TaskUpdate,
     db: AsyncSession = Depends(get_db)
 ):
-    updated_task = await task_service.update_task(
+    return await task_service.update_task(
         id=id,
         task_data=task,
         db=db
     )
-    if updated_task is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Task not found"
-        )
-    return updated_task
 @router.delete(
     "/{id}"
 )
@@ -89,15 +76,11 @@ async def delete_task(
     id: int,
     db: AsyncSession = Depends(get_db)
 ):
-    deleted = await task_service.delete_task(
+    await task_service.delete_task(
         id=id,
         db=db
     )
-    if deleted is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Task not found"
-        )
+
     return {
         "message": "Task deleted successfully"
     }
