@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field
+from datetime import date, datetime
+
+from pydantic import BaseModel, Field, ConfigDict
 from app.enums.priority import Priority
 
 class TaskCreate(BaseModel):
@@ -35,6 +37,10 @@ class TaskCreate(BaseModel):
     )
 
     completed: bool = False
+    due_date: date | None = Field(
+        default=None,
+        description="Optional due date"
+    )
 
 class TaskResponse(BaseModel):
     id: int
@@ -44,6 +50,11 @@ class TaskResponse(BaseModel):
     priority: Priority
     estimated_hours: float | None
     completed: bool
+    due_date: date | None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 
 class TaskUpdate(BaseModel):
     title: str = Field(..., min_length=3, max_length=100)
@@ -68,3 +79,7 @@ class TaskUpdate(BaseModel):
         description="Estimated study hours"
     )
     completed: bool = False
+    due_date: date | None = Field(
+        default=None,
+        description="Optional due date"
+    )
