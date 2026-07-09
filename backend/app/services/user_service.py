@@ -8,10 +8,7 @@ from app.core.security import (
 )
 from app.exceptions.base import AppException
 from app.models.user import User
-from app.schemas.user import (
-    UserCreate,
-    UserLogin,
-)
+from app.schemas.user import UserCreate
 
 async def register_user(
     user_data: UserCreate,
@@ -44,10 +41,11 @@ async def register_user(
         raise
 
 async def login_user(
-    user_data: UserLogin,
+    email: str,
+    password: str,
     db: AsyncSession,
 ) -> dict:
-    email = user_data.email.strip().lower()
+    email = email.strip().lower()
     query = select(User).where(User.email == email)
     result = await db.execute(query)
     user = result.scalar_one_or_none()
@@ -57,7 +55,7 @@ async def login_user(
             message="Invalid email or password."
         )
     if not verify_password(
-        user_data.password,
+        password,
         user.hashed_password,
     ):
         raise AppException(

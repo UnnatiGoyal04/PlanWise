@@ -9,10 +9,12 @@ from app.enums.sort_field import SortField
 from app.enums.sort_order import SortOrder
 from app.exceptions.task_exceptions import TaskNotFoundException
 from app.logging.logger import logger
+from app.models.user import User
 
 async def create_task(
     task: TaskCreate,
-    db: AsyncSession
+    db: AsyncSession,
+    current_user: User
 ):
     db_task = Task(
         title=task.title,
@@ -21,7 +23,8 @@ async def create_task(
         priority=task.priority,
         estimated_hours=task.estimated_hours,
         completed=task.completed,
-        due_date=task.due_date
+        due_date=task.due_date,
+        user_id=current_user.id
     )
     db.add(db_task)
     await db.commit()

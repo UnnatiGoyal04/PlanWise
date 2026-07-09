@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import Boolean, Float, String, Date, CheckConstraint
+from sqlalchemy import Boolean, Float, String, Date, CheckConstraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.database import Base
@@ -15,6 +15,11 @@ class Task(AuditMixin, Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True
+    )
     title: Mapped[str] = mapped_column(String(200))
     subject: Mapped[str] = mapped_column(String(100))
     estimated_hours: Mapped[float | None] = mapped_column(

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.security import OAuth2PasswordRequestForm
 
 from app.database.database import get_db
 from app.schemas.user import (
@@ -34,10 +35,11 @@ async def register(
     status_code=status.HTTP_200_OK,
 )
 async def login(
-    user_data: UserLogin,
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
 ):
     return await login_user(
-        user_data,
-        db,
+        email=form_data.username,
+        password=form_data.password,
+        db=db,
     )

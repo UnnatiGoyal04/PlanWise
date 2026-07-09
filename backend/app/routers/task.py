@@ -7,6 +7,8 @@ from app.services import task_service
 from app.enums.priority import Priority
 from app.enums.sort_field import SortField
 from app.enums.sort_order import SortOrder
+from app.core.dependencies import get_current_user
+from app.models.user import User
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
@@ -17,9 +19,14 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 )
 async def create_task(
     task: TaskCreate,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    db_task = await task_service.create_task(task, db)
+    db_task = await task_service.create_task(
+        task,
+        db,
+        current_user
+    )
     return db_task
 @router.get(
     "/",
