@@ -40,6 +40,7 @@ async def get_tasks(
     order: SortOrder = SortOrder.ASC,
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     tasks = await task_service.get_tasks(
@@ -50,6 +51,7 @@ async def get_tasks(
         order=order,
         page=page,
         limit=limit,
+        current_user=current_user,
         db=db
     )    
     return tasks
@@ -59,9 +61,14 @@ async def get_tasks(
 )    
 async def get_task(
     id:int,
+    current_user: User = Depends(get_current_user),
     db:AsyncSession=Depends(get_db)
 ):
-    return await task_service.get_task(id, db)
+    return await task_service.get_task(
+        id=id,
+        current_user=current_user,
+        db=db,
+    )
 @router.put(
     "/{id}",
     response_model=TaskResponse
@@ -69,11 +76,13 @@ async def get_task(
 async def update_task(
     id: int,
     task: TaskUpdate,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     return await task_service.update_task(
         id=id,
         task_data=task,
+        current_user=current_user,
         db=db
     )
 @router.delete(
@@ -81,10 +90,12 @@ async def update_task(
 )
 async def delete_task(
     id: int,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     await task_service.delete_task(
         id=id,
+        current_user=current_user,
         db=db
     )
 

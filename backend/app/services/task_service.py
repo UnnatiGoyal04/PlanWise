@@ -39,10 +39,13 @@ async def get_tasks(
     order: SortOrder,
     page: int,
     limit: int,
+    current_user: User,
     db: AsyncSession
 ):
-    query = select(Task).where(Task.deleted_at.is_(None))
-
+    query = select(Task).where(
+        Task.user_id == current_user.id,
+        Task.deleted_at.is_(None)
+    )
     if priority is not None:
         query = query.where(Task.priority == priority)
     if completed is not None:
@@ -77,10 +80,12 @@ async def get_tasks(
     return tasks
 async def get_task(
     id: int,
+    current_user: User,
     db: AsyncSession
 ):
     query = select(Task).where(
         Task.id == id,
+        Task.user_id == current_user.id,
         Task.deleted_at.is_(None)
     )
     result = await db.execute(query)
@@ -92,10 +97,12 @@ async def get_task(
 async def update_task(
     id: int,
     task_data: TaskUpdate,
+    current_user: User,
     db: AsyncSession
 ):
     query = select(Task).where(
         Task.id == id,
+        Task.user_id == current_user.id,
         Task.deleted_at.is_(None)
     )
     result = await db.execute(query)
@@ -116,10 +123,12 @@ async def update_task(
     return task
 async def delete_task(
     id: int,
+    current_user: User,
     db: AsyncSession
 ):
     query = select(Task).where(
         Task.id == id,
+        Task.user_id == current_user.id,
         Task.deleted_at.is_(None)
     )
     result = await db.execute(query)
