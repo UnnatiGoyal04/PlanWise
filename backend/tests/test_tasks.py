@@ -201,3 +201,116 @@ async def test_delete_task(client, auth_headers):
     data = response.json()
 
     assert data["message"] == "Task deleted successfully"
+@pytest.mark.asyncio
+async def test_get_tasks_without_token(client):
+    response = await client.get("/tasks/")
+
+    assert response.status_code == 401
+@pytest.mark.asyncio
+async def test_cannot_access_another_users_task(client, create_user_and_login):
+    headers_user1 = await create_user_and_login(
+        "User One",
+        "user1@example.com",
+        "password123",
+    )
+    response = await client.post(
+        "/tasks/",
+        headers=headers_user1,
+        json={
+            "title": "Private Task",
+            "subject": "Backend",
+            "description": "Only User One should access this",
+            "priority": "High",
+            "estimated_hours": 2,
+            "completed": False,
+        },
+    )
+    task_id = response.json()["id"]
+    headers_user2 = await create_user_and_login(
+        "User Two",
+        "user2@example.com",
+        "password123",
+    )
+    response = await client.get(
+        f"/tasks/{task_id}",
+        headers=headers_user2,
+    )
+    assert response.status_code == 404
+@pytest.mark.asyncio
+async def test_cannot_update_another_users_task(
+    client,
+    create_user_and_login,
+):
+    headers_user1 = await create_user_and_login(
+        "User One",
+        "user1@example.com",
+        "password123",
+    )
+    response = await client.post(
+        "/tasks/",
+        headers=headers_user1,
+        json={
+            "title": "Private Task",
+            "subject": "Backend",
+            "description": "Original",
+            "priority": "High",
+            "estimated_hours": 2,
+            "completed": False,
+        },
+    )
+    task_id = response.json()["id"]
+    headers_user2 = await create_user_and_login(
+        "User Two",
+        "user2@example.com",
+        "password123",
+    )
+    response = await client.put(
+        f"/tasks/{task_id}",
+        headers=headers_user2,
+        json={
+            "title": "Hacked Task",
+            "subject": "Backend",
+            "description": "Modified",
+            "priority": "Low",
+            "estimated_hours": 5,
+            "completed": True,
+        },
+    )
+    assert response.status_code == 404
+@pytest.mark.asyncio
+async def test_cannot_delete_another_users_task(
+    client,
+    create_user_and_login,
+):
+    headers_user1 = await create_user_and_login(
+        "User One",
+        "user1@example.com",
+        "password123",
+    )
+
+    response = await client.post(
+        "/tasks/",
+        headers=headers_user1,
+        json={
+            "title": "Private Task",
+            "subject": "Backend",
+            "description": "Original",
+            "priority": "High",
+            "estimated_hours": 2,
+            "completed": False,
+        },
+    )
+
+    task_id = response.json()["id"]
+
+    headers_user2 = await create_user_and_login(
+        "User Two",
+        "user2@example.com",
+        "password123",
+    )
+
+    response = await client.delete(
+        f"/tasks/{task_id}",
+        headers=headers_user2,
+    )
+    assert response.status_code == 404

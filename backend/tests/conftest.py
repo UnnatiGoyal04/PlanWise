@@ -93,3 +93,31 @@ async def auth_headers(client):
     return {
         "Authorization": f"Bearer {token}"
     }
+@pytest_asyncio.fixture
+async def create_user_and_login(client):
+
+    async def _create_user(name, email, password):
+        await client.post(
+            "/auth/register",
+            json={
+                "name": name,
+                "email": email,
+                "password": password,
+            },
+        )
+
+        response = await client.post(
+            "/auth/login",
+            data={
+                "username": email,
+                "password": password,
+            },
+        )
+
+        token = response.json()["access_token"]
+
+        return {
+            "Authorization": f"Bearer {token}"
+        }
+
+    return _create_user
