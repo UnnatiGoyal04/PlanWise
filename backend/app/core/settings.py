@@ -1,12 +1,13 @@
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 class Settings:
-    APP_NAME=os.getenv("APP_NAME")
-    APP_VERSION=os.getenv("APP_VERSION")
-    APP_DESCRIPTION=os.getenv("APP_DESCRIPTION")
-    DEBUG=os.getenv("DEBUG")
+    APP_NAME = os.getenv("APP_NAME")
+    APP_VERSION = os.getenv("APP_VERSION")
+    APP_DESCRIPTION = os.getenv("APP_DESCRIPTION")
+    DEBUG = os.getenv("DEBUG")
     DATABASE_URL = os.getenv("DATABASE_URL")
 
     SECRET_KEY = os.getenv("SECRET_KEY")
@@ -15,4 +16,8 @@ class Settings:
         os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
     )
 
-settings=Settings()
+    TASK_RETENTION_DAYS = int(
+        os.getenv("TASK_RETENTION_DAYS", 30)
+    )
+
+settings = Settings()

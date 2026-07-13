@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.database import get_db
@@ -91,6 +91,7 @@ async def update_task(
 )
 async def delete_task(
     id: int,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
@@ -99,7 +100,7 @@ async def delete_task(
         current_user=current_user,
         db=db
     )
-
+    
     return {
         "message": "Task deleted successfully"
     }

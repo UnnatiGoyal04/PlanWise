@@ -1,6 +1,6 @@
 from sqlalchemy import select, asc, desc, or_
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 
 from app.models.task import Task
 from app.schemas.task import TaskCreate, TaskUpdate
@@ -10,6 +10,7 @@ from app.enums.sort_order import SortOrder
 from app.exceptions.task_exceptions import TaskNotFoundException
 from app.logging.logger import logger
 from app.models.user import User
+from app.core.settings import settings
 
 async def create_task(
     task: TaskCreate,
@@ -141,3 +142,28 @@ async def delete_task(
     await db.refresh(task)
     logger.info(f"Task soft deleted successfully (id={id})")
     return True
+
+async def cleanup_deleted_tasks(
+    db: AsyncSession
+):
+    cutoff_date = datetime.now(UTC) - timedelta(
+        days=settings.TASK_RETENTION_DAYS
+    )
+
+    query = select(Task).where(
+        Task.deleted_at.is_not(None),
+        Task.deleted_at < cutoff_date
+    )
+
+    result = await db.execute(query)
+
+    tasks = result.scalars().all()
+
+    for task in tasks:
+        await db.delete(task)
+
+    await db.commit()
+
+    logger.info(
+        f"Permanent cleanup completed. Removed {len(tasks)} tasks."
+    )
