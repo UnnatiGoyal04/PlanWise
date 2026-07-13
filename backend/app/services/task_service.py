@@ -1,6 +1,6 @@
 from sqlalchemy import select, asc, desc, or_
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime
+from datetime import datetime, UTC
 
 from app.models.task import Task
 from app.schemas.task import TaskCreate, TaskUpdate
@@ -136,7 +136,7 @@ async def delete_task(
     if task is None:
         logger.warning(f"Task not found for deletion (id={id})")
         raise TaskNotFoundException()
-    task.deleted_at = datetime.utcnow()
+    task.deleted_at = datetime.now(UTC)
     await db.commit()
     await db.refresh(task)
     logger.info(f"Task soft deleted successfully (id={id})")

@@ -66,3 +66,30 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
         yield client
 
     fastapi_app.dependency_overrides.clear()
+
+@pytest_asyncio.fixture
+async def auth_headers(client):
+    # Register a user
+    await client.post(
+        "/auth/register",
+        json={
+            "name": "Test User",
+            "email": "test@example.com",
+            "password": "password123",
+        },
+    )
+
+    # Login
+    response = await client.post(
+        "/auth/login",
+        data={
+            "username": "test@example.com",
+            "password": "password123",
+        },
+    )
+
+    token = response.json()["access_token"]
+
+    return {
+        "Authorization": f"Bearer {token}"
+    }

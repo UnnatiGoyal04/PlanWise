@@ -35,6 +35,169 @@ async def test_create_task(client):
             "due_date": "2026-08-01",
         },
     )
-
     print(response.status_code)
     print(response.json())
+@pytest.mark.asyncio
+async def test_get_tasks(client):
+    
+    await client.post(
+        "/auth/register",
+        json={
+            "name": "Task User",
+            "email": "taskuser@example.com",
+            "password": "password123",
+        },
+    )
+
+    login = await client.post(
+        "/auth/login",
+        data={
+            "username": "taskuser@example.com",
+            "password": "password123",
+        },
+    )
+
+    token = login.json()["access_token"]
+
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    await client.post(
+        "/tasks/",
+        headers=headers,
+        json={
+            "title": "Task One",
+            "subject": "Backend",
+            "description": "First task",
+            "priority": "High",
+            "estimated_hours": 2,
+            "completed": False,
+            "due_date": "2026-08-01",
+        },
+    )
+
+    await client.post(
+        "/tasks/",
+        headers=headers,
+        json={
+            "title": "Task Two",
+            "subject": "Database",
+            "description": "Second task",
+            "priority": "Medium",
+            "estimated_hours": 4,
+            "completed": False,
+            "due_date": "2026-08-02",
+        },
+    )
+
+    response = await client.get(
+        "/tasks/",
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == 2
+    assert data[0]["title"] == "Task One"
+    assert data[1]["title"] == "Task Two"
+@pytest.mark.asyncio
+async def test_get_task_by_id(client, auth_headers):
+    create_response = await client.post(
+        "/tasks/",
+        headers=auth_headers,
+        json={
+            "title": "Python Revision",
+            "subject": "Python",
+            "description": "Revise async programming",
+            "priority": "High",
+            "estimated_hours": 3,
+            "completed": False,
+            "due_date": "2026-08-05",
+        },
+    )
+
+    task_id = create_response.json()["id"]
+
+    response = await client.get(
+        f"/tasks/{task_id}",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["id"] == task_id
+    assert data["title"] == "Python Revision"
+    assert data["subject"] == "Python"
+@pytest.mark.asyncio
+async def test_update_task(client, auth_headers):
+    create_response = await client.post(
+        "/tasks/",
+        headers=auth_headers,
+        json={
+            "title": "Old Title",
+            "subject": "Python",
+            "description": "Old description",
+            "priority": "Low",
+            "estimated_hours": 2,
+            "completed": False,
+            "due_date": "2026-08-01",
+        },
+    )
+
+    task_id = create_response.json()["id"]
+
+    response = await client.put(
+        f"/tasks/{task_id}",
+        headers=auth_headers,
+        json={
+            "title": "New Title",
+            "subject": "FastAPI",
+            "description": "Updated description",
+            "priority": "High",
+            "estimated_hours": 5,
+            "completed": True,
+            "due_date": "2026-08-10",
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["title"] == "New Title"
+    assert data["subject"] == "FastAPI"
+    assert data["priority"] == "High"
+    assert data["completed"] is True
+@pytest.mark.asyncio
+async def test_delete_task(client, auth_headers):
+    create_response = await client.post(
+        "/tasks/",
+        headers=auth_headers,
+        json={
+            "title": "Delete Me",
+            "subject": "Testing",
+            "description": "Task to be deleted",
+            "priority": "Medium",
+            "estimated_hours": 2,
+            "completed": False,
+            "due_date": "2026-08-15",
+        },
+    )
+
+    task_id = create_response.json()["id"]
+
+    response = await client.delete(
+        f"/tasks/{task_id}",
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["message"] == "Task deleted successfully"
