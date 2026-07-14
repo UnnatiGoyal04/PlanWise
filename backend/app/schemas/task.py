@@ -3,7 +3,7 @@ from datetime import date, datetime
 from pydantic import BaseModel, Field, ConfigDict
 from app.enums.priority import Priority
 
-class TaskCreate(BaseModel):
+class TaskBase(BaseModel):
     title: str = Field(
         ...,
         min_length=3,
@@ -15,71 +15,122 @@ class TaskCreate(BaseModel):
         ...,
         min_length=2,
         max_length=50,
-        description="Subject name"
+        description="The subject or course associated with this task."
     )
 
     description: str | None = Field(
         default=None,
         max_length=500,
-        description="Optional description"
+        description="Optional additional details about the task."
     )
 
     priority: Priority = Field(
         ...,
-        description="Task priority"
+        description="Task priority."
     )
 
     estimated_hours: float | None = Field(
         default=None,
         ge=1,
         le=100,
-        description="Estimated study hours"
+        description="Estimated number of study hours required."
     )
 
-    completed: bool = False
+    completed: bool = Field(
+        default=False,
+        description="Whether the task has been completed."
+    )
+
     due_date: date | None = Field(
         default=None,
-        description="Optional due date"
+        description="Optional due date for completing the task."
+    )
+
+class TaskCreate(TaskBase):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "title": "Revise Binary Trees",
+                "subject": "Data Structures",
+                "description": "Solve 20 LeetCode problems",
+                "priority": "High",
+                "estimated_hours": 3,
+                "completed": False,
+                "due_date": "2026-07-20"
+            }
+        }
     )
 
 class TaskResponse(BaseModel):
-    id: int
-    title: str
-    subject: str
-    description: str | None
-    priority: Priority
-    estimated_hours: float | None
-    completed: bool
-    due_date: date | None
-    created_at: datetime
-    updated_at: datetime
+    id: int = Field(
+        description="Unique identifier of the task."
+    )
 
-    model_config = ConfigDict(from_attributes=True)
+    title: str = Field(
+        description="Title of the study task."
+    )
 
-class TaskUpdate(BaseModel):
-    title: str = Field(..., min_length=3, max_length=100)
     subject: str = Field(
-        ...,
-        min_length=2,
-        max_length=50
+        description="The subject or course associated with this task."
     )
+
     description: str | None = Field(
-        default=None,
-        max_length=500,
-        description="Optional description"
-    )    
+        description="Additional details about the task."
+    )
+
     priority: Priority = Field(
-        ...,
-        description="Task priority"
+        description="Priority assigned to the task."
     )
+
     estimated_hours: float | None = Field(
-        default=None,
-        ge=1,
-        le=100,
-        description="Estimated study hours"
+        description="Estimated number of study hours required."
     )
-    completed: bool = False
+
+    completed: bool = Field(
+        description="Whether the task has been completed."
+    )
+
     due_date: date | None = Field(
-        default=None,
-        description="Optional due date"
+        description="Due date for completing the task."
+    )
+
+    created_at: datetime = Field(
+        description="Timestamp when the task was created."
+    )
+
+    updated_at: datetime = Field(
+        description="Timestamp when the task was last updated."
+    )
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
+            "example": {
+                "id": 1,
+                "title": "Revise Binary Trees",
+                "subject": "Data Structures",
+                "description": "Solve 20 LeetCode problems",
+                "priority": "High",
+                "estimated_hours": 3,
+                "completed": False,
+                "due_date": "2026-07-20",
+                "created_at": "2026-07-14T10:30:00Z",
+                "updated_at": "2026-07-14T10:30:00Z"
+            }
+        }
+    )
+
+class TaskUpdate(TaskBase):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "title": "Revise Binary Trees",
+                "subject": "Data Structures",
+                "description": "Complete the remaining LeetCode problems",
+                "priority": "Medium",
+                "estimated_hours": 2,
+                "completed": True,
+                "due_date": "2026-07-22"
+            }
+        }
     )
