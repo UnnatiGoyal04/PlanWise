@@ -9,6 +9,11 @@ from app.enums.sort_field import SortField
 from app.enums.sort_order import SortOrder
 from app.core.dependencies import get_current_user
 from app.models.user import User
+from app.openapi.responses import (
+    HTTP_401_RESPONSE,
+    HTTP_404_RESPONSE,
+    HTTP_422_RESPONSE,
+)
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
@@ -23,6 +28,10 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
         "The task is automatically associated with the currently logged-in user."
     ),
     response_description="The newly created task.",
+    responses={
+        401: HTTP_401_RESPONSE,
+        422: HTTP_422_RESPONSE,
+    },
 )
 async def create_task(
     task: TaskCreate,
@@ -43,7 +52,11 @@ async def create_task(
         "Returns the authenticated user's tasks. "
         "Supports filtering, searching, sorting, and pagination."
     ),
-    response_description="A list of matching tasks."
+    response_description="A list of matching tasks.",
+    responses={
+        401: HTTP_401_RESPONSE,
+        422: HTTP_422_RESPONSE,
+    },
 )
 async def get_tasks(
     priority: Priority | None = Query(
@@ -94,8 +107,18 @@ async def get_tasks(
     return tasks
 @router.get(
     "/{id}",
-    response_model=TaskResponse
-)    
+    response_model=TaskResponse,
+    summary="Get a task by ID",
+    description=(
+        "Returns a single task belonging to the authenticated user."
+    ),
+    response_description="The requested task.",
+    responses={
+        401: HTTP_401_RESPONSE,
+        404: HTTP_404_RESPONSE,
+        422: HTTP_422_RESPONSE,
+    },
+)  
 async def get_task(
     id:int,
     current_user: User = Depends(get_current_user),
@@ -108,7 +131,17 @@ async def get_task(
     )
 @router.put(
     "/{id}",
-    response_model=TaskResponse
+    response_model=TaskResponse,
+    summary="Update a task",
+    description=(
+        "Updates an existing task owned by the authenticated user."
+    ),
+    response_description="The updated task.",
+    responses={
+        401: HTTP_401_RESPONSE,
+        404: HTTP_404_RESPONSE,
+        422: HTTP_422_RESPONSE,
+    },
 )
 async def update_task(
     id: int,
@@ -123,7 +156,17 @@ async def update_task(
         db=db
     )
 @router.delete(
-    "/{id}"
+    "/{id}",
+    summary="Delete a task",
+    description=(
+        "Soft deletes a task owned by the authenticated user."
+    ),
+    response_description="Deletion confirmation.",
+    responses={
+        401: HTTP_401_RESPONSE,
+        404: HTTP_404_RESPONSE,
+        422: HTTP_422_RESPONSE,
+    },
 )
 async def delete_task(
     id: int,
