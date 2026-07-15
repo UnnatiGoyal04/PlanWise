@@ -19,5 +19,6 @@ class Settings:
     TASK_RETENTION_DAYS = int(
         os.getenv("TASK_RETENTION_DAYS", 30)
     )
+    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
 
 settings = Settings()
