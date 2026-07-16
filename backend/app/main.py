@@ -46,6 +46,18 @@ register_exception_handlers(app)
 register_logging_middleware(app)
 
 app.include_router(home_router)
-app.include_router(task_router)
-app.include_router(auth_router)
-app.include_router(health_router)
+
+app.include_router(
+    task_router,
+    prefix=settings.API_PREFIX,
+)
+
+app.include_router(
+    auth_router,
+    prefix=settings.API_PREFIX,
+)
+
+app.include_router(
+    health_router,
+    prefix=settings.API_PREFIX,
+)

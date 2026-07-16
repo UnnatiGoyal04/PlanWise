@@ -7,6 +7,7 @@ class Settings:
     APP_NAME = os.getenv("APP_NAME")
     APP_VERSION = os.getenv("APP_VERSION")
     APP_DESCRIPTION = os.getenv("APP_DESCRIPTION")
+    API_PREFIX = "/api/v1"
     DEBUG = os.getenv("DEBUG")
     DATABASE_URL = os.getenv("DATABASE_URL")
 
