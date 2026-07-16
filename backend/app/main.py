@@ -8,6 +8,7 @@ from app.routers.auth import router as auth_router
 from app.routers.health import router as health_router
 from app.exception_handlers.handlers import register_exception_handlers
 from app.middleware.logging_middleware import register_logging_middleware
+from app.middleware.request_id_middleware import register_request_id_middleware
 from app.core.scheduler import scheduler, add_scheduler_jobs
 
 from contextlib import asynccontextmanager
@@ -44,6 +45,7 @@ app.add_middleware(
 )
 register_exception_handlers(app)
 register_logging_middleware(app)
+register_request_id_middleware(app)
 
 app.include_router(home_router)
 

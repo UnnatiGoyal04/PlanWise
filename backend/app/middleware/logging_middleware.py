@@ -12,6 +12,7 @@ def register_logging_middleware(app: FastAPI):
         response = await call_next(request)
         process_time = (time.perf_counter() - start_time) * 1000
         logger.info(
+            f"[{request.state.request_id}] "
             f"{request.method} "
             f"{request.url.path} | "
             f"{response.status_code} | "
