@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.database import get_db
 from app.services.health_service import check_database
+from app.schemas.health import HealthResponse
 
 router = APIRouter(
     prefix="/health",
@@ -11,6 +12,7 @@ router = APIRouter(
 )
 @router.get(
     "",
+    response_model=HealthResponse,
     summary="Health check",
     description="Returns the current health status of the application.",
 )
