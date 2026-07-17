@@ -10,6 +10,7 @@ from app.exception_handlers.handlers import register_exception_handlers
 from app.middleware.logging_middleware import register_logging_middleware
 from app.middleware.request_id_middleware import register_request_id_middleware
 from app.core.scheduler import scheduler, add_scheduler_jobs
+from app.core.limiter import limiter
 
 from contextlib import asynccontextmanager
 from app.database.database import engine
@@ -36,6 +37,7 @@ app = FastAPI(
         "name": "MIT",
     },
 )
+app.state.limiter = limiter
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
