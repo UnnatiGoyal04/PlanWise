@@ -6,3 +6,19 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    
+  postgres:
+    image: postgres:17
+    container_name: postgres-container
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: planwise
+      POSTGRES_USER: planwise_user
+      POSTGRES_PASSWORD: planwise_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
