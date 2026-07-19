@@ -1,12 +1,22 @@
 # Virtual Environment
 venv/
 
-#python cache
+# Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+
+# Pytest
+.pytest_cache/
 
 # VS Code
 .vscode/
 
-#Environment variables
+# Environment variables
 .env
+
+# Database files
+*.db
+
+# Logs
+*.log
