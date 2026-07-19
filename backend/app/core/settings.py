@@ -11,6 +11,20 @@ class Settings:
     DEBUG = os.getenv("DEBUG")
     DATABASE_URL = os.getenv("DATABASE_URL")
 
+    if DATABASE_URL:
+        if DATABASE_URL.startswith("postgres://"):
+            DATABASE_URL = DATABASE_URL.replace(
+                "postgres://",
+                "postgresql+asyncpg://",
+                1
+            )
+        elif DATABASE_URL.startswith("postgresql://"):
+            DATABASE_URL = DATABASE_URL.replace(
+                "postgresql://",
+                "postgresql+asyncpg://",
+                1
+            )
+
     SECRET_KEY = os.getenv("SECRET_KEY")
     ALGORITHM = os.getenv("ALGORITHM")
     ACCESS_TOKEN_EXPIRE_MINUTES = int(
