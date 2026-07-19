@@ -20,6 +20,11 @@ class Task(AuditMixin, Base):
         nullable=False,
         index=True
     )
+    category_id: Mapped[int | None] = mapped_column(
+        ForeignKey("categories.id"),
+        nullable=True,
+        index=True
+    )
     title: Mapped[str] = mapped_column(String(200))
     subject: Mapped[str] = mapped_column(String(100))
     estimated_hours: Mapped[float | None] = mapped_column(
