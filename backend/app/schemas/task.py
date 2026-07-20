@@ -46,12 +46,18 @@ class TaskBase(BaseModel):
         description="Optional due date for completing the task."
     )
 
+    category_id: int | None = Field(
+        default=None,
+        description="Optional category assigned to this task."
+    )
+
 class TaskCreate(TaskBase):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "title": "Revise Binary Trees",
                 "subject": "Data Structures",
+                "category_id": 1,
                 "description": "Solve 20 LeetCode problems",
                 "priority": "High",
                 "estimated_hours": 3,
@@ -64,6 +70,10 @@ class TaskCreate(TaskBase):
 class TaskResponse(BaseModel):
     id: int = Field(
         description="Unique identifier of the task."
+    )
+    
+    category_id: int | None = Field(
+        description="Category assigned to the task."
     )
 
     title: str = Field(
@@ -109,6 +119,7 @@ class TaskResponse(BaseModel):
                 "id": 1,
                 "title": "Revise Binary Trees",
                 "subject": "Data Structures",
+                "category_id": 1,
                 "description": "Solve 20 LeetCode problems",
                 "priority": "High",
                 "estimated_hours": 3,
@@ -126,6 +137,7 @@ class TaskUpdate(TaskBase):
             "example": {
                 "title": "Revise Binary Trees",
                 "subject": "Data Structures",
+                "category_id": 1,
                 "description": "Complete the remaining LeetCode problems",
                 "priority": "Medium",
                 "estimated_hours": 2,

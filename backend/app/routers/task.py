@@ -71,6 +71,10 @@ async def get_tasks(
         default=None,
         description="Search tasks by title or description."
     ),
+    category_id: int | None = Query(
+        default=None,
+        description="Filter tasks by category."
+    ),
     sort: SortField | None = Query(
         default=None,
         description="Field used to sort the returned tasks."
@@ -97,6 +101,7 @@ async def get_tasks(
         priority=priority,
         completed=completed,
         search=search,
+        category_id=category_id,
         sort=sort,
         order=order,
         page=page,

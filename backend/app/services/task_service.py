@@ -10,6 +10,7 @@ from app.enums.sort_order import SortOrder
 from app.exceptions.task_exceptions import TaskNotFoundException
 from app.logging.logger import logger
 from app.models.user import User
+from app.models.category import Category
 from app.core.settings import settings
 
 async def create_task(
@@ -17,6 +18,21 @@ async def create_task(
     db: AsyncSession,
     current_user: User
 ):
+    category_id = None
+
+    if task.category_id is not None:
+        category = await db.scalar(
+            select(Category).where(
+                Category.id == task.category_id,
+                Category.user_id == current_user.id,
+                Category.deleted_at.is_(None),
+            )
+        )
+
+        if category is None:
+            raise ValueError("Category not found.")
+
+        category_id = category.id
     db_task = Task(
         title=task.title,
         subject=task.subject,
@@ -25,6 +41,7 @@ async def create_task(
         estimated_hours=task.estimated_hours,
         completed=task.completed,
         due_date=task.due_date,
+        category_id=category_id,
         user_id=current_user.id
     )
     db.add(db_task)
@@ -36,6 +53,7 @@ async def get_tasks(
     priority: Priority | None,
     completed: bool | None,
     search: str | None,
+    category_id: int | None,
     sort: SortField | None,
     order: SortOrder,
     page: int,
@@ -51,6 +69,8 @@ async def get_tasks(
         query = query.where(Task.priority == priority)
     if completed is not None:
         query = query.where(Task.completed == completed)
+    if category_id is not None:
+        query = query.where(Task.category_id == category_id)
     if search is not None:
         query = query.where(
             or_(
@@ -111,13 +131,25 @@ async def update_task(
     if task is None:
         logger.warning(f"Task not found for update (id={id})")
         raise TaskNotFoundException()
+    if task_data.category_id is not None:
+        category = await db.scalar(
+            select(Category).where(
+                Category.id == task_data.category_id,
+                Category.user_id == current_user.id,
+                Category.deleted_at.is_(None)
+            )
+        )
+
+        if category is None:
+            raise ValueError("Category not found.")
     task.title = task_data.title
     task.subject = task_data.subject
     task.description = task_data.description
     task.priority = task_data.priority
     task.estimated_hours = task_data.estimated_hours
     task.completed = task_data.completed
-    task.due_date = task_data.due_date    
+    task.due_date = task_data.due_date
+    task.category_id = task_data.category_id    
     await db.commit()
     await db.refresh(task)
     logger.info(f"Task updated successfully (id={id})")
