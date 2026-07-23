@@ -199,3 +199,22 @@ async def cleanup_deleted_tasks(
     logger.info(
         f"Permanent cleanup completed. Removed {len(tasks)} tasks."
     )
+
+async def get_all_active_tasks(
+    current_user: User,
+    db: AsyncSession,
+):
+    """
+    Returns all active (non-deleted) tasks
+    belonging to the authenticated user.
+    """
+
+    query = select(Task).where(
+        Task.user_id == current_user.id,
+        Task.deleted_at.is_(None),
+        Task.completed.is_(False),
+    )
+
+    result = await db.execute(query)
+
+    return result.scalars().all()

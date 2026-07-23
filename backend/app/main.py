@@ -7,6 +7,8 @@ from app.routers.task import router as task_router
 from app.routers.auth import router as auth_router
 from app.routers.category import router as category_router
 from app.routers.health import router as health_router
+from app.routers.planner import router as planner_router
+
 from app.exception_handlers.handlers import register_exception_handlers
 from app.middleware.logging_middleware import register_logging_middleware
 from app.middleware.request_id_middleware import register_request_id_middleware
@@ -70,5 +72,10 @@ app.include_router(
 
 app.include_router(
     health_router,
+    prefix=settings.API_PREFIX,
+)
+
+app.include_router(
+    planner_router,
     prefix=settings.API_PREFIX,
 )
