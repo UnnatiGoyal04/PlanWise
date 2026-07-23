@@ -7,6 +7,47 @@ from app.schemas.planner import (
     PlannedTask,
 )
 from app.services.task_service import get_all_active_tasks
+from datetime import date
+
+
+def calculate_score(task) -> int:
+    """
+    Calculates a priority score for a task.
+
+    Higher score = higher priority.
+    """
+
+    score = 0
+
+    # Priority weight
+    if task.priority == "High":
+        score += 50
+    elif task.priority == "Medium":
+        score += 30
+    else:
+        score += 10
+
+    # Due date weight
+    if task.due_date is not None:
+        days_left = (task.due_date - date.today()).days
+
+        if days_left <= 0:
+            score += 40
+        elif days_left <= 1:
+            score += 30
+        elif days_left <= 7:
+            score += 20
+        else:
+            score += 10
+
+    # Estimated hours weight
+    if task.estimated_hours is not None:
+        if task.estimated_hours <= 2:
+            score += 10
+        elif task.estimated_hours <= 5:
+            score += 5
+
+    return score
 
 
 async def generate_plan(
@@ -37,9 +78,14 @@ async def generate_plan(
                 priority=task.priority,
                 due_date=task.due_date,
                 allocated_hours=task.estimated_hours or 0,
-                score=0,
+                score=calculate_score(task),
             )
         )
+
+    planned_tasks.sort(
+        key=lambda task: task.score,
+        reverse=True,
+    )
 
     allocated_hours = sum(
         task.allocated_hours
