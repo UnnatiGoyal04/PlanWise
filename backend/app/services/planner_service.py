@@ -77,7 +77,8 @@ async def generate_plan(
                 subject=task.subject,
                 priority=task.priority,
                 due_date=task.due_date,
-                allocated_hours=task.estimated_hours or 0,
+                estimated_hours=task.estimated_hours or 0,
+                allocated_hours=0,
                 score=calculate_score(task),
             )
         )
@@ -86,6 +87,22 @@ async def generate_plan(
         key=lambda task: task.score,
         reverse=True,
     )
+
+    remaining_hours = request.available_hours
+
+    for task in planned_tasks:
+
+        if remaining_hours <= 0:
+            break
+
+        hours_to_allocate = min(
+            task.estimated_hours,
+            remaining_hours,
+        )
+
+        task.allocated_hours = hours_to_allocate
+
+        remaining_hours -= hours_to_allocate
 
     allocated_hours = sum(
         task.allocated_hours

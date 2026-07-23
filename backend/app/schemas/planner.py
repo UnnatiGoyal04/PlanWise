@@ -41,8 +41,12 @@ class PlannedTask(BaseModel):
         description="Task due date."
     )
 
+    estimated_hours: float = Field(
+        description="Estimated hours required to complete the task."
+    )
+
     allocated_hours: float = Field(
-        description="Hours allocated to this task."
+        description="Study hours allocated for today's plan."
     )
 
     score: int = Field(
@@ -73,7 +77,8 @@ class PlannerResponse(BaseModel):
                         "subject": "DSA",
                         "priority": "High",
                         "due_date": "2026-07-25",
-                        "allocated_hours": 2,
+                        "estimated_hours": 4,
+                        "allocated_hours": 1,
                         "score": 95
                     },
                     {
@@ -82,6 +87,7 @@ class PlannerResponse(BaseModel):
                         "subject": "Operating Systems",
                         "priority": "Medium",
                         "due_date": "2026-07-27",
+                        "estimated_hours": 2,
                         "allocated_hours": 2,
                         "score": 88
                     }
