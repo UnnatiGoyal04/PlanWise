@@ -4,7 +4,7 @@ import pytest
 @pytest.mark.asyncio
 async def test_register_user(client):
     response = await client.post(
-        "/auth/register",
+        "/api/v1/auth/register",
         json={
             "name": "Test User",
             "email": "test@example.com",
@@ -24,7 +24,7 @@ async def test_register_user(client):
 async def test_login_user(client):
 
     await client.post(
-        "/auth/register",
+        "/api/v1/auth/register",
         json={
             "name": "Login User",
             "email": "login@example.com",
@@ -33,7 +33,7 @@ async def test_login_user(client):
     )
 
     response = await client.post(
-        "/auth/login",
+        "/api/v1/auth/login",
         data={
             "username": "login@example.com",
             "password": "password123",
@@ -50,7 +50,7 @@ async def test_login_user(client):
 async def test_get_current_user(client):
 
     await client.post(
-        "/auth/register",
+        "/api/v1/auth/register",
         json={
             "name": "Current User",
             "email": "current@example.com",
@@ -59,7 +59,7 @@ async def test_get_current_user(client):
     )
 
     login_response = await client.post(
-        "/auth/login",
+        "/api/v1/auth/login",
         data={
             "username": "current@example.com",
             "password": "password123",
@@ -69,7 +69,7 @@ async def test_get_current_user(client):
     token = login_response.json()["access_token"]
 
     response = await client.get(
-        "/auth/me",
+        "/api/v1/auth/me",
         headers={
             "Authorization": f"Bearer {token}",
         },

@@ -3,7 +3,7 @@ import pytest
 async def test_create_task(client):
 
     await client.post(
-        "/auth/register",
+        "/api/v1/auth/register",
         json={
             "name": "Task User",
             "email": "task@example.com",
@@ -12,7 +12,7 @@ async def test_create_task(client):
     )
 
     login_response = await client.post(
-        "/auth/login",
+        "/api/v1/auth/login",
         data={
             "username": "task@example.com",
             "password": "password123",
@@ -22,7 +22,7 @@ async def test_create_task(client):
     token = login_response.json()["access_token"]
 
     response = await client.post(
-        "/tasks/",
+        "/api/v1/tasks/",
         headers={
             "Authorization": f"Bearer {token}",
         },
@@ -41,7 +41,7 @@ async def test_create_task(client):
 async def test_get_tasks(client):
     
     await client.post(
-        "/auth/register",
+        "/api/v1/auth/register",
         json={
             "name": "Task User",
             "email": "taskuser@example.com",
@@ -50,7 +50,7 @@ async def test_get_tasks(client):
     )
 
     login = await client.post(
-        "/auth/login",
+        "/api/v1/auth/login",
         data={
             "username": "taskuser@example.com",
             "password": "password123",
@@ -64,7 +64,7 @@ async def test_get_tasks(client):
     }
 
     await client.post(
-        "/tasks/",
+        "/api/v1/tasks/",
         headers=headers,
         json={
             "title": "Task One",
@@ -78,7 +78,7 @@ async def test_get_tasks(client):
     )
 
     await client.post(
-        "/tasks/",
+        "/api/v1/tasks/",
         headers=headers,
         json={
             "title": "Task Two",
@@ -92,7 +92,7 @@ async def test_get_tasks(client):
     )
 
     response = await client.get(
-        "/tasks/",
+        "/api/v1/tasks/",
         headers=headers,
     )
 
@@ -106,7 +106,7 @@ async def test_get_tasks(client):
 @pytest.mark.asyncio
 async def test_get_task_by_id(client, auth_headers):
     create_response = await client.post(
-        "/tasks/",
+        "/api/v1/tasks/",
         headers=auth_headers,
         json={
             "title": "Python Revision",
@@ -122,7 +122,7 @@ async def test_get_task_by_id(client, auth_headers):
     task_id = create_response.json()["id"]
 
     response = await client.get(
-        f"/tasks/{task_id}",
+        f"/api/v1/tasks/{task_id}",
         headers=auth_headers,
     )
 
@@ -136,7 +136,7 @@ async def test_get_task_by_id(client, auth_headers):
 @pytest.mark.asyncio
 async def test_update_task(client, auth_headers):
     create_response = await client.post(
-        "/tasks/",
+        "/api/v1/tasks/",
         headers=auth_headers,
         json={
             "title": "Old Title",
@@ -152,7 +152,7 @@ async def test_update_task(client, auth_headers):
     task_id = create_response.json()["id"]
 
     response = await client.put(
-        f"/tasks/{task_id}",
+        f"/api/v1/tasks/{task_id}",
         headers=auth_headers,
         json={
             "title": "New Title",
@@ -176,7 +176,7 @@ async def test_update_task(client, auth_headers):
 @pytest.mark.asyncio
 async def test_delete_task(client, auth_headers):
     create_response = await client.post(
-        "/tasks/",
+        "/api/v1/tasks/",
         headers=auth_headers,
         json={
             "title": "Delete Me",
@@ -192,7 +192,7 @@ async def test_delete_task(client, auth_headers):
     task_id = create_response.json()["id"]
 
     response = await client.delete(
-        f"/tasks/{task_id}",
+        f"/api/v1/tasks/{task_id}",
         headers=auth_headers,
     )
 
@@ -203,7 +203,7 @@ async def test_delete_task(client, auth_headers):
     assert data["message"] == "Task deleted successfully"
 @pytest.mark.asyncio
 async def test_get_tasks_without_token(client):
-    response = await client.get("/tasks/")
+    response = await client.get("/api/v1/tasks/")
 
     assert response.status_code == 401
 @pytest.mark.asyncio
@@ -214,7 +214,7 @@ async def test_cannot_access_another_users_task(client, create_user_and_login):
         "password123",
     )
     response = await client.post(
-        "/tasks/",
+        "/api/v1/tasks/",
         headers=headers_user1,
         json={
             "title": "Private Task",
@@ -232,7 +232,7 @@ async def test_cannot_access_another_users_task(client, create_user_and_login):
         "password123",
     )
     response = await client.get(
-        f"/tasks/{task_id}",
+        f"/api/v1/tasks/{task_id}",
         headers=headers_user2,
     )
     assert response.status_code == 404
@@ -247,7 +247,7 @@ async def test_cannot_update_another_users_task(
         "password123",
     )
     response = await client.post(
-        "/tasks/",
+        "/api/v1/tasks/",
         headers=headers_user1,
         json={
             "title": "Private Task",
@@ -265,7 +265,7 @@ async def test_cannot_update_another_users_task(
         "password123",
     )
     response = await client.put(
-        f"/tasks/{task_id}",
+        f"/api/v1/tasks/{task_id}",
         headers=headers_user2,
         json={
             "title": "Hacked Task",
@@ -289,7 +289,7 @@ async def test_cannot_delete_another_users_task(
     )
 
     response = await client.post(
-        "/tasks/",
+        "/api/v1/tasks/",
         headers=headers_user1,
         json={
             "title": "Private Task",
@@ -310,7 +310,7 @@ async def test_cannot_delete_another_users_task(
     )
 
     response = await client.delete(
-        f"/tasks/{task_id}",
+        f"/api/v1/tasks/{task_id}",
         headers=headers_user2,
     )
     assert response.status_code == 404

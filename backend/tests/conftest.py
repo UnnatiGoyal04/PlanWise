@@ -1,5 +1,7 @@
 import os
+os.environ["TESTING"] = "True"
 from collections.abc import AsyncGenerator
+from app.core.limiter import limiter
 
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -16,6 +18,7 @@ import app.models.task
 import app.models.user
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+API_PREFIX = "/api/v1"
 
 engine = create_async_engine(
     TEST_DATABASE_URL,
@@ -53,6 +56,7 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
 
 @pytest_asyncio.fixture
 async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
+    limiter.enabled = False
 
     async def override_get_db():
         yield db_session
@@ -64,14 +68,14 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
         base_url="http://test",
     ) as client:
         yield client
-
+    limiter.enabled = True
     fastapi_app.dependency_overrides.clear()
 
 @pytest_asyncio.fixture
 async def auth_headers(client):
     # Register a user
     await client.post(
-        "/auth/register",
+        f"{API_PREFIX}/auth/register",
         json={
             "name": "Test User",
             "email": "test@example.com",
@@ -81,12 +85,14 @@ async def auth_headers(client):
 
     # Login
     response = await client.post(
-        "/auth/login",
+        f"{API_PREFIX}/auth/login",
         data={
             "username": "test@example.com",
             "password": "password123",
         },
     )
+
+    assert response.status_code == 200, response.text
 
     token = response.json()["access_token"]
 
@@ -98,7 +104,7 @@ async def create_user_and_login(client):
 
     async def _create_user(name, email, password):
         await client.post(
-            "/auth/register",
+            f"{API_PREFIX}/auth/register",
             json={
                 "name": name,
                 "email": email,
@@ -107,12 +113,14 @@ async def create_user_and_login(client):
         )
 
         response = await client.post(
-            "/auth/login",
+            f"{API_PREFIX}/auth/login",
             data={
                 "username": email,
                 "password": password,
             },
         )
+
+        assert response.status_code == 200, response.text
 
         token = response.json()["access_token"]
 

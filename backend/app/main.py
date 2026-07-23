@@ -41,7 +41,8 @@ app = FastAPI(
         "name": "MIT",
     },
 )
-app.state.limiter = limiter
+if not settings.TESTING:
+    app.state.limiter = limiter
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,

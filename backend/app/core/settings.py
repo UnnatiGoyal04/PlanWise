@@ -9,6 +9,7 @@ class Settings:
     APP_DESCRIPTION = os.getenv("APP_DESCRIPTION")
     API_PREFIX = "/api/v1"
     DEBUG = os.getenv("DEBUG")
+    TESTING = os.getenv("TESTING", "False") == "True"
     DATABASE_URL = os.getenv("DATABASE_URL")
 
     if DATABASE_URL:
