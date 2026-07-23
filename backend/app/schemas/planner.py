@@ -53,6 +53,14 @@ class PlannedTask(BaseModel):
         description="Calculated planning score."
     )
 
+    reason: str | None = Field(
+        default=None,
+        description="AI explanation for why this task was scheduled."
+    )
+
+class PlannerRecommendation(BaseModel):
+    summary: str
+    recommendations: list[str]
 
 class PlannerResponse(BaseModel):
     available_hours: float = Field(
@@ -64,6 +72,8 @@ class PlannerResponse(BaseModel):
     )
 
     tasks: list[PlannedTask]
+
+    recommendation: PlannerRecommendation | None = None
 
     model_config = ConfigDict(
         json_schema_extra={

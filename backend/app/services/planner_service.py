@@ -6,6 +6,10 @@ from app.schemas.planner import (
     PlannerResponse,
     PlannedTask,
 )
+from app.services.ai.ai_service import (
+    explain_task_schedule,
+    generate_study_recommendation,
+)
 from app.services.task_service import get_all_active_tasks
 from datetime import date
 
@@ -80,6 +84,7 @@ async def generate_plan(
                 estimated_hours=task.estimated_hours or 0,
                 allocated_hours=0,
                 score=calculate_score(task),
+                reason=await explain_task_schedule(task),
             )
         )
 
@@ -109,8 +114,13 @@ async def generate_plan(
         for task in planned_tasks
     )
 
+    recommendation = await generate_study_recommendation(
+        tasks
+    )
+
     return PlannerResponse(
         available_hours=request.available_hours,
         allocated_hours=allocated_hours,
         tasks=planned_tasks,
+        recommendation=recommendation,
     )
