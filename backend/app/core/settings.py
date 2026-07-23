@@ -37,4 +37,6 @@ class Settings:
     )
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
 
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
 settings = Settings()
